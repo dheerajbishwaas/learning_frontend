@@ -2,14 +2,18 @@
   "name": "frontend",
   "version": "1.0.0",
   "dependencies": {
-    "next": "12.0.0",
-    "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "20": "^3.1.9",
+    "next": "^15.3.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-toastify": "^11.0.5"
   },
-  "devDependencies": {},
   "scripts": {
     "dev": "next dev",
     "build": "NODE_OPTIONS=--openssl-legacy-provider next build",
     "start": "next start"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.4"
   }
 }
