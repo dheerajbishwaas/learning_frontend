@@ -1,3 +1,25 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* styles/globals.css */
+
+/* Make the entire page take up at least the full viewport height */
+html, body {
+    height: 100%;
+    margin: 0;
+  }
+  
+  /* Make the page content a flex container */
+  #__next {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+  
+  /* Main content takes up all available space */
+  main {
+    flex-grow: 1;
+  }
+  
+  /* Footer will stick to the bottom */
+  footer {
+    margin-top: auto;
+  }
+  

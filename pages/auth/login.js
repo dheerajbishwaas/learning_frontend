@@ -1,16 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'; // CSS ko import karna zaroori hai
+import 'react-toastify/dist/ReactToastify.css';
+import { useRouter } from 'next/router'; 
+import axios from 'axios';
+
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 export default function LoginPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [errors, setErrors] = useState({ username: '', password: '' });
+
+  // Check if the user is already logged in
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Assuming the token contains the user's role
+      const userRole = JSON.parse(atob(token.split('.')[1])).role;
+      if (userRole === '1') {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/user/dashboard');
+      }
+    }
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validation check
@@ -20,11 +41,39 @@ export default function LoginPage() {
 
     setErrors(formErrors);
 
-    // Agar errors nahi hain toh success toast dikhayein
     if (!formErrors.username && !formErrors.password) {
-      toast.success('Login successful!');
+      try {
+        const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}users/login`, {
+          username: formData.username,
+          password: formData.password,
+        });
+
+        if (res && res.data && res.data.token) {
+          // Save token to localStorage
+          localStorage.setItem('token', res.data.token);
+
+          const userRole = res.data.user.role;
+          
+          if (userRole === '1') {
+            toast.success('Admin Login successful!');
+            router.push('/admin/dashboard');
+          } else {
+            toast.success('User Login successful!');
+            router.push('/user/dashboard');
+          }
+        } else {
+          console.log('Invalid response or no token received');
+          toast.error('Login failed!!!');
+        }
+      } catch (error) {
+        console.log('Error:', error);
+        if (error.response) {
+          toast.error(error.response?.data?.message || 'Login failed!!!');
+        } else {
+          toast.error('An error occurred while logging in.');
+        }
+      }
     } else {
-      // Agar errors hain toh error toast dikhayein
       toast.error('Please fill all fields.');
     }
   };
@@ -61,8 +110,6 @@ export default function LoginPage() {
           <button type="submit" className="btn btn-primary w-100">Login</button>
         </form>
       </div>
-      
-      {/* ToastContainer to show the toast notifications */}
       <ToastContainer />
     </div>
   );
