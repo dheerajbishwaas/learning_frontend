@@ -1,36 +1,60 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';  // Import Link from next
 
 const Header = () => {
   const [role, setRole] = useState(null);
   const router = useRouter();
+  const appName = process.env.NEXT_PUBLIC_APP_NAME;
 
   useEffect(() => {
-    // Token ko localStorage se fetch karo
     const token = localStorage.getItem('token');
     
     if (token) {
-      // JWT decode karo aur user role ko get karo
-      const decoded = JSON.parse(atob(token.split('.')[1])); // Decode JWT
-      setRole(decoded.role); // Set role from decoded token
+      try {
+        const decoded = JSON.parse(atob(token.split('.')[1]));
+        if (decoded && decoded.role) {
+          setRole(decoded.role);
+        } else {
+          setRole(null);
+        }
+      } catch (error) {
+        console.error('Invalid token:', error);
+        setRole(null);
+      }
     } else {
-      // Agar token nahi milta, to login page pe redirect kar do
-      router.push('/login');
+      setRole(null);
     }
   }, [router]);
 
   // Logout function
   const handleLogout = () => {
     localStorage.removeItem('token');
-    router.push('/login');
+    setRole(null); 
+    router.push('/');
+  };
+
+  // Redirect to login page
+  const handleLogin = () => {
+    router.push('/login');  // Redirect to login page
   };
 
   return (
     <header>
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <div className="container-fluid">
-          <a className="navbar-brand" href="/">Learning App</a>
-          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <Link href="/" passHref>
+            <span className="navbar-brand">{appName}</span>
+          </Link>
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
             <span className="navbar-toggler-icon"></span>
           </button>
           <div className="collapse navbar-collapse" id="navbarNav">
@@ -38,32 +62,48 @@ const Header = () => {
               {role === '1' && ( // Admin ke liye navbar
                 <>
                   <li className="nav-item">
-                    <a className="nav-link" href="/admin/dashboard">Dashboard</a>
+                    <Link href="/admin/dashboard" passHref>
+                      <span className="nav-link">Dashboard</span>
+                    </Link>
                   </li>
                   <li className="nav-item">
-                    <a className="nav-link" href="/admin/course/">Manage Course</a>
+                    <Link href="/admin/course/" passHref>
+                      <span className="nav-link">Manage Course</span>
+                    </Link>
                   </li>
                   <li className="nav-item">
-                    <a className="nav-link" href="/admin/settings">Settings</a>
+                    <Link href="/admin/settings" passHref>
+                      <span className="nav-link">Settings</span>
+                    </Link>
                   </li>
                 </>
               )}
               {role === '2' && ( // User ke liye navbar
                 <>
                   <li className="nav-item">
-                    <a className="nav-link" href="/user/dashboard">Dashboard</a>
+                    <Link href="/user/dashboard" passHref>
+                      <span className="nav-link">Dashboard</span>
+                    </Link>
                   </li>
                   <li className="nav-item">
-                    <a className="nav-link" href="/user/profile">Profile</a>
+                    <Link href="/user/profile" passHref>
+                      <span className="nav-link">Profile</span>
+                    </Link>
                   </li>
                   <li className="nav-item">
-                    <a className="nav-link" href="/user/orders">Orders</a>
+                    <Link href="/user/orders" passHref>
+                      <span className="nav-link">Orders</span>
+                    </Link>
                   </li>
                 </>
               )}
-              {role && ( // Logout option, common for both admin and user
+              {role ? ( // Logout option, common for both admin and user
                 <li className="nav-item">
                   <button className="btn btn-danger" onClick={handleLogout}>Logout</button>
+                </li>
+              ) : ( // Login button for unauthenticated users
+                <li className="nav-item">
+                  <button className="btn btn-primary" onClick={handleLogin}>Login</button>
                 </li>
               )}
             </ul>
@@ -74,4 +114,4 @@ const Header = () => {
   );
 };
 
-export default Header
+export default Header;

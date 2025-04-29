@@ -2,13 +2,15 @@
 import Link from 'next/link';
 
 const Footer = () => {
+  const appName = process.env.NEXT_PUBLIC_APP_NAME;
+
   return (
     <footer className="bg-dark text-white py-4">
       <div className="container">
         <div className="row">
           <div className="text-center">
-            <h5>Learning App</h5>
-            <p>© {new Date().getFullYear()} All Rights Reserved.</p>
+            <h5>{appName}</h5>
+            <p>© {new Date().getFullYear()} All Rights Reserved{appName}.</p>
           </div>
           {/* <div className="col-md-6 text-md-right">
             <ul className="list-unstyled">

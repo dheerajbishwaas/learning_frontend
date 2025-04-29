@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-
+import Head from 'next/head';
 
 const AdminDashboard = () => {
   const router = useRouter();
+  const appName = process.env.NEXT_PUBLIC_APP_NAME;
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -21,6 +22,9 @@ const AdminDashboard = () => {
 
   return (
    <>
+      <Head>
+        <title>Admin Dashboard | {appName}</title>
+      </Head>
      <div className='text-center'>
       <h1>Admin Dashboard</h1>
       <p>Welcome to the admin panel!</p>
