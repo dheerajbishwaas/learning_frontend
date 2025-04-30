@@ -10,7 +10,7 @@ const Footer = () => {
         <div className="row">
           <div className="text-center">
             <h5>{appName}</h5>
-            <p>© {new Date().getFullYear()} All Rights Reserved{appName}.</p>
+            <p>© {new Date().getFullYear()} All Rights Reserved {appName}.</p>
           </div>
           {/* <div className="col-md-6 text-md-right">
             <ul className="list-unstyled">

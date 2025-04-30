@@ -1,10 +1,11 @@
 // pages/admin/course/create.js
-import React, { useState } from 'react';
+import React, { useState,useEffect  } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import Select from 'react-select';
+import axios from 'axios';
 
 // Dynamically import the editor to avoid SSR issues
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
@@ -12,6 +13,7 @@ import 'react-quill/dist/quill.snow.css';
 
 const CreateCourse = () => {
   const appName = process.env.NEXT_PUBLIC_APP_NAME;
+  const [categoryOptions, setCategoryOptions] = useState([]);
   const router = useRouter();
   
   // Main form state
@@ -39,18 +41,32 @@ const CreateCourse = () => {
   ]);
   
   // Categories options
-  const categoryOptions = [
-    { value: 1, label: 'Programming' },
-    { value: 2, label: 'Design' },
-    { value: 3, label: 'Business' },
-    { value: 4, label: 'Marketing' },
-    { value: 5, label: 'Photography' },
-    { value: 6, label: 'Music' },
-    { value: 7, label: 'Health' },
-    { value: 8, label: 'Fitness' },
-    { value: 9, label: 'Academics' }
-  ];
+  // const categoryOptions = [
+  //   { value: 1, label: 'Programming' },
+  //   { value: 2, label: 'Design' },
+  //   { value: 3, label: 'Business' },
+  //   { value: 4, label: 'Marketing' },
+  //   { value: 5, label: 'Photography' },
+  //   { value: 6, label: 'Music' },
+  //   { value: 7, label: 'Health' },
+  //   { value: 8, label: 'Fitness' },
+  //   { value: 9, label: 'Academics' }
+  // ];
+  useEffect(() => {
+    axios.get(`${process.env.NEXT_PUBLIC_API_URL}course/categories/getAllCategory`)
+      .then((res) => {
+        const formatted = res.data.data.map((cat, index) => ({
+          value: cat._id,
+          label: cat.name,
+        }));
+        setCategoryOptions(formatted);
+      })
+      .catch((err) => {
+        console.error('Failed to fetch categories:', err);
+      });
+  }, []);
   
+
   // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -68,10 +84,9 @@ const CreateCourse = () => {
     }));
   }; 
   
-  const selectedCategories = formData.categories.map(category => ({
-    value: category,
-    label: category
-  }));
+  const selectedCategories = categoryOptions.filter(option => 
+    formData.categories.includes(option.value)
+  );
 
   // Handle editor content change
   const handleEditorChange = (content) => {
