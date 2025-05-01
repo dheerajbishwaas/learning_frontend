@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Head from 'next/head';
+import CourseTable from '../../../components/CourseTable'; // adjust path if needed
 
 const Course = () => {
   const appName = process.env.NEXT_PUBLIC_APP_NAME;
@@ -16,7 +17,7 @@ const Course = () => {
             Add Course
           </Link>
         </div>
-        {/* Yahan tum apna course list ka table ya data dal sakte ho */}
+         <CourseTable />
       </div>
     </>
   );
