@@ -6,6 +6,8 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import Select from 'react-select';
 import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Dynamically import the editor to avoid SSR issues
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
@@ -41,17 +43,6 @@ const CreateCourse = () => {
   ]);
   
   // Categories options
-  // const categoryOptions = [
-  //   { value: 1, label: 'Programming' },
-  //   { value: 2, label: 'Design' },
-  //   { value: 3, label: 'Business' },
-  //   { value: 4, label: 'Marketing' },
-  //   { value: 5, label: 'Photography' },
-  //   { value: 6, label: 'Music' },
-  //   { value: 7, label: 'Health' },
-  //   { value: 8, label: 'Fitness' },
-  //   { value: 9, label: 'Academics' }
-  // ];
   useEffect(() => {
     axios.get(`${process.env.NEXT_PUBLIC_API_URL}course/categories/getAllCategory`)
       .then((res) => {
@@ -135,15 +126,30 @@ const CreateCourse = () => {
       ? { ...formData, chapters } 
       : formData;
     
-    try {
-      // Here you would typically make an API call to save the course
-      console.log('Submitting course:', courseData);
+      try {
+        const token = localStorage.getItem('token');
       
-      // Redirect to courses list after successful submission
-      router.push('/admin/courses');
-    } catch (error) {
-      console.error('Error saving course:', error);
-    }
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}course/create`,
+          courseData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+      
+        toast.success('Course created successfully', {
+          onClose: () => {
+            router.push('/admin/course');  // Redirect after toast is dismissed
+          }
+        });
+      } catch (error) {
+        const errorMessage = error.response?.data?.message || 'Something went wrong'; 
+        toast.error(errorMessage);
+      }
+      
   };
 
   return (
@@ -418,6 +424,7 @@ const CreateCourse = () => {
             </button>
           </div>
         </form>
+        <ToastContainer/>
       </div>
     </>
   );
