@@ -46,7 +46,7 @@ export default function LoginPage() {
         const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}users/login`, {
           username: formData.username,
           password: formData.password,
-        });
+        },{withCredentials: true});
 
         if (res && res.data && res.data.token) {
           // Save token to localStorage

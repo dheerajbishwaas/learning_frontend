@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';  // Import Link from next
+import axios from 'axios';
 
 const Header = () => {
   const [role, setRole] = useState(null);
@@ -28,10 +29,19 @@ const Header = () => {
   }, [router]);
 
   // Logout function
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setRole(null);
-    router.push('/');
+  const handleLogout = async () => {
+    try {
+      // Call backend API to log out the user and clear the cookie
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}users/logout`, {}, { withCredentials: true });
+  
+      // Remove token from localStorage
+      localStorage.removeItem('token');
+  
+      // Redirect to login page or home page
+      router.push('/');
+    } catch (error) {
+      console.error('Logout Error:', error);
+    }
   };
 
   // Redirect to login page
