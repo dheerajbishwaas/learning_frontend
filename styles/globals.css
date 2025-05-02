@@ -22,4 +22,6 @@ html, body {
   footer {
     margin-top: auto;
   }
-  
+  nav a{
+    text-decoration: none;
+  }
