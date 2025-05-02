@@ -55,11 +55,17 @@ export default function LoginPage() {
           const userRole = res.data.user.role;
           
           if (userRole === '1') {
-            toast.success('Admin Login successful!');
-            router.push('/admin/dashboard');
+            toast.success('Admin Login successful!', {
+              onClose: () => {
+                router.push('/admin/dashboard');
+              }
+            });
           } else {
-            toast.success('User Login successful!');
-            router.push('/user/dashboard');
+            toast.success('User Login successful!', {
+              onClose: () => {
+                router.push('/user/dashboard');
+              }
+            });
           }
         } else {
           console.log('Invalid response or no token received');
