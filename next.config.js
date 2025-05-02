@@ -10,6 +10,10 @@ module.exports = {
             source: '/admin/course/update/:id',  // User URL pattern
             destination: '/admin/course/update',   // Actual dynamic file path
           },
+        {
+            source: '/admin/categories/update/:id',  // User URL pattern
+            destination: '/admin/categories/update',   // Actual dynamic file path
+          },
         ];
     },
 }

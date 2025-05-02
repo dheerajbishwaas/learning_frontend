@@ -9,7 +9,7 @@ const Header = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    
+
     if (token) {
       try {
         const decoded = JSON.parse(atob(token.split('.')[1]));
@@ -30,7 +30,7 @@ const Header = () => {
   // Logout function
   const handleLogout = () => {
     localStorage.removeItem('token');
-    setRole(null); 
+    setRole(null);
     router.push('/');
   };
 
@@ -66,10 +66,22 @@ const Header = () => {
                       <span className="nav-link">Dashboard</span>
                     </Link>
                   </li>
-                  <li className="nav-item">
-                    <Link href="/admin/course/" passHref>
-                      <span className="nav-link">Manage Course</span>
-                    </Link>
+                  <li className="nav-item dropdown">
+                    <span className="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      Manage Course
+                    </span>
+                    <ul className="dropdown-menu">
+                      <li>
+                        <Link href="/admin/categories" passHref>
+                          <span className="dropdown-item">Course Category</span>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link href="/admin/course" passHref>
+                          <span className="dropdown-item">Courses</span>
+                        </Link>
+                      </li>
+                    </ul>
                   </li>
                   <li className="nav-item">
                     <Link href="/admin/settings" passHref>

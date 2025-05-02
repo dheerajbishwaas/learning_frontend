@@ -58,6 +58,39 @@ const UpdateCourse = () => {
   }, []);
   
 
+  useEffect(() => {
+    if (id) {
+      const token = localStorage.getItem('token');
+  
+      axios.get(`${process.env.NEXT_PUBLIC_API_URL}course/getCourseById/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        const course = res.data.data;
+        setFormData({
+          courseName: course.courseName,
+          courseType: course.courseType,
+          description: course.description,
+          youtubeLink: course.youtubeLink,
+          videoCredits: course.videoCredits,
+          status: course.status,
+          metaTitle: course.metaTitle,
+          metaDescription: course.metaDescription,
+          categories: course.categories || [],
+        });
+  
+        if (course.courseType === 'multi') {
+          setChapters(course.chapters || []);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load course:", err);
+      });
+    }
+  }, [id]);
+  
   // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -128,9 +161,10 @@ const UpdateCourse = () => {
     
       try {
         const token = localStorage.getItem('token');
+        const courseId = id; // Replace this with your dynamic ID if needed
       
-        const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}course/create`,
+        const response = await axios.put(
+          `${process.env.NEXT_PUBLIC_API_URL}course/update/${courseId}`,
           courseData,
           {
             headers: {
@@ -140,7 +174,7 @@ const UpdateCourse = () => {
           }
         );
       
-        toast.success('Course created successfully', {
+        toast.success('Course updated successfully', {
           onClose: () => {
             router.push('/admin/course');  // Redirect after toast is dismissed
           }
@@ -149,6 +183,7 @@ const UpdateCourse = () => {
         const errorMessage = error.response?.data?.message || 'Something went wrong'; 
         toast.error(errorMessage);
       }
+      
       
   };
 

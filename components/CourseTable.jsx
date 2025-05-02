@@ -34,6 +34,8 @@ const CourseTable = () => {
 
   const columns = [
     { name: 'Name', selector: row => row.courseName },
+    { name: 'Course Type', selector: row => row.courseType.charAt(0).toUpperCase() + row.courseType.slice(1)},
+    { name: 'Created-At', selector: row => row.createdAt },
     {
         name: 'Status',
         cell: row => {
@@ -67,7 +69,7 @@ const CourseTable = () => {
       cell: row => (
         <div>
           <button onClick={() => router.push(`/admin/course/update/${row._id}`)} className="btn btn-sm btn-warning me-2">Edit</button>
-          <button onClick={() => handleDelete(row.id)} className="btn btn-sm btn-danger">Delete</button>
+          <button onClick={() => handleDelete(row._id)} className="btn btn-sm btn-danger">Delete</button>
         </div>
       )
     }
@@ -76,11 +78,14 @@ const CourseTable = () => {
   const handleDelete = async (id) => {
     const token = localStorage.getItem('token');
     try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}course/delete/${id}`, {
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}course/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success('Deleted successfully');
-      fetchData(page);
+      toast.success('Deleted successfully',{
+        onClose: () => {
+          fetchData(page);
+        }
+      });
     } catch {
       toast.error('Delete failed');
     }
@@ -88,7 +93,7 @@ const CourseTable = () => {
 
   return (
     <CommonTable
-      title="Course List"
+      title=""
       columns={columns}
       data={data}
       loading={loading}
