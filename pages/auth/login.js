@@ -3,6 +3,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router'; 
 import axios from 'axios';
+import Cookies from 'js-cookie';
+
 
 const dotenv = require('dotenv');
 
@@ -51,7 +53,11 @@ export default function LoginPage() {
         if (res && res.data && res.data.token) {
           // Save token to localStorage
           localStorage.setItem('token', res.data.token);
-
+          Cookies.set('token', res.data.token, {
+            path: '/',
+            sameSite: 'Strict', // or 'Lax' or 'None'
+            secure: true,       // secure should be true on HTTPS
+          });
           const userRole = res.data.user.role;
           
           if (userRole === '1') {
