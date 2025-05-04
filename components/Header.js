@@ -97,6 +97,11 @@ const Header = () => {
                     </ul>
                   </li>
                   <li className="nav-item">
+                    <Link href="/admin/users" passHref>
+                      <span className="nav-link">Users</span>
+                    </Link>
+                  </li>
+                  <li className="nav-item">
                     <Link href="/admin/settings" passHref>
                       <span className="nav-link">Settings</span>
                     </Link>
