@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';  // Import Link from next
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const Header = () => {
   const [role, setRole] = useState(null);
@@ -36,7 +37,9 @@ const Header = () => {
   
       // Remove token from localStorage
       localStorage.removeItem('token');
-  
+      Cookies.remove('access_token', {
+        path: '/', 
+      });
       // Redirect to login page or home page
       router.push('/');
     } catch (error) {
