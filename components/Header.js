@@ -37,7 +37,7 @@ const Header = () => {
   
       // Remove token from localStorage
       localStorage.removeItem('token');
-      Cookies.remove('access_token', {
+      Cookies.remove('token', {
         path: '/', 
       });
       // Redirect to login page or home page
