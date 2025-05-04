@@ -6,7 +6,7 @@ export const config = {
 
   
 export function middleware(req) {
-  const token = req.cookies.get('token')?.value;
+  const token = req.cookies.get('access_token')?.value;
   const isAdminPath = req.nextUrl.pathname.startsWith('/admin');
   const loginUrl = new URL('/login', req.url);
 
