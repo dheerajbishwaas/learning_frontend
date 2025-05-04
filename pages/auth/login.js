@@ -53,7 +53,7 @@ export default function LoginPage() {
         if (res && res.data && res.data.token) {
           // Save token to localStorage
           localStorage.setItem('token', res.data.token);
-          Cookies.set('token', res.data.token, {
+          Cookies.set('access_token', res.data.token, {
             path: '/',
             sameSite: 'Strict', // or 'Lax' or 'None'
             secure: true,       // secure should be true on HTTPS
