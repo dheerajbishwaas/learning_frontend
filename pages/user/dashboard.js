@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Header from '../../components/Header';
-
+import Head from 'next/head';
 
 const UserDashboard = () => {
   const router = useRouter();
-
+  const appName = process.env.NEXT_PUBLIC_APP_NAME;
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -22,6 +22,9 @@ const UserDashboard = () => {
 
   return (
     <>
+    <Head>
+      <title>Dashboard {appName}</title>
+    </Head>
     <div className='text-center mt-5'>
       <h1>User Dashboard</h1>
       <p>Welcome to the user panel!</p>

@@ -4,7 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router'; 
 import axios from 'axios';
 import Cookies from 'js-cookie';
-
+import Head from 'next/head';
 
 const dotenv = require('dotenv');
 
@@ -14,7 +14,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [errors, setErrors] = useState({ username: '', password: '' });
-
+  const appName = process.env.NEXT_PUBLIC_APP_NAME;
   // Check if the user is already logged in
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -91,6 +91,11 @@ export default function LoginPage() {
   };
 
   return (
+    <>
+    <Head>
+      <title>Login |{appName}</title>
+    </Head>
+    
     <div className="d-flex justify-content-center align-items-center vh-100 bg-white">
       <div className="card p-4" style={{ width: '22rem', backgroundColor: '#f1f1f1' }}>
         <h2 className="text-center mb-4">Login panel !!</h2>
@@ -124,5 +129,6 @@ export default function LoginPage() {
       </div>
       <ToastContainer />
     </div>
+    </>
   );
 }

@@ -18,6 +18,18 @@ module.exports = {
         source: '/admin/users/update/:id',  // User URL pattern
         destination: '/admin/users/update',   // Actual dynamic file path
       },
+      {
+        source: '/courses',  // User URL pattern
+        destination: '/public/courses',   // Actual dynamic file path
+      },
+      {
+        source: '/about',  // User URL pattern
+        destination: '/public/about',   // Actual dynamic file path
+      },
+      {
+        source: '/contact',  // User URL pattern
+        destination: '/public/contact',   // Actual dynamic file path
+      },
     ];
   }
 }

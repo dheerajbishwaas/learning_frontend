@@ -25,3 +25,25 @@ html, body {
   nav a{
     text-decoration: none;
   }
+  /* styles/swiper-custom.css */
+.swiper-button-next,
+.swiper-button-prev {
+  color: #007bff; /* Bootstrap primary color */
+  width: 30px;
+  height: 30px;
+  background-color: #f8f9fa;
+  border-radius: 50%;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  font-size: 14px; /* Smaller arrow */
+  font-weight: bold;
+}
+
+

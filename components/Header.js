@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';  // Import Link from next
+import Link from 'next/link';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
@@ -15,11 +15,7 @@ const Header = () => {
     if (token) {
       try {
         const decoded = JSON.parse(atob(token.split('.')[1]));
-        if (decoded && decoded.role) {
-          setRole(decoded.role);
-        } else {
-          setRole(null);
-        }
+        setRole(decoded?.role || null);
       } catch (error) {
         console.error('Invalid token:', error);
         setRole(null);
@@ -29,36 +25,27 @@ const Header = () => {
     }
   }, [router]);
 
-  // Logout function
   const handleLogout = async () => {
     try {
-      // Call backend API to log out the user and clear the cookie
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}users/logout`, {}, { withCredentials: true });
-  
-      // Remove token from localStorage
       localStorage.removeItem('token');
-      Cookies.remove('token', {
-        path: '/', 
-      });
-      // Redirect to login page or home page
+      Cookies.remove('token', { path: '/' });
       router.push('/');
     } catch (error) {
       console.error('Logout Error:', error);
     }
   };
 
-  // Redirect to login page
   const handleLogin = () => {
-    router.push('/login');  // Redirect to login page
+    router.push('/login');
   };
 
   return (
     <header>
-      <nav className="navbar navbar-expand-lg navbar-light bg-light">
-        <div className="container-fluid">
-          <Link href="/" passHref>
-            <span className="navbar-brand">{appName}</span>
-          </Link>
+      <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+        <div className="container">
+          <Link href="/" className="navbar-brand">{appName}</Link>
+
           <button
             className="navbar-toggler"
             type="button"
@@ -70,72 +57,86 @@ const Header = () => {
           >
             <span className="navbar-toggler-icon"></span>
           </button>
+
           <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav ms-auto">
-              {role === '1' && ( // Admin ke liye navbar
+            <ul className="navbar-nav ms-auto align-items-center">
+
+              {/* Admin Role */}
+              {role === '1' && (
                 <>
                   <li className="nav-item">
-                    <Link href="/admin/dashboard" passHref>
-                      <span className="nav-link">Dashboard</span>
-                    </Link>
+                    <Link href="/admin/dashboard" className="nav-link">Dashboard</Link>
                   </li>
                   <li className="nav-item dropdown">
-                    <span className="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a
+                      className="nav-link dropdown-toggle"
+                      href="#"
+                      role="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
                       Manage Course
-                    </span>
+                    </a>
                     <ul className="dropdown-menu">
                       <li>
-                        <Link href="/admin/categories" passHref>
-                          <span className="dropdown-item">Course Category</span>
-                        </Link>
+                        <Link href="/admin/categories" className="dropdown-item">Course Category</Link>
                       </li>
                       <li>
-                        <Link href="/admin/course" passHref>
-                          <span className="dropdown-item">Courses</span>
-                        </Link>
+                        <Link href="/admin/course" className="dropdown-item">Courses</Link>
                       </li>
                     </ul>
                   </li>
                   <li className="nav-item">
-                    <Link href="/admin/users" passHref>
-                      <span className="nav-link">Users</span>
-                    </Link>
+                    <Link href="/admin/users" className="nav-link">Users</Link>
                   </li>
                   <li className="nav-item">
-                    <Link href="/admin/settings" passHref>
-                      <span className="nav-link">Settings</span>
-                    </Link>
+                    <Link href="/admin/settings" className="nav-link">Settings</Link>
                   </li>
                 </>
               )}
-              {role === '2' && ( // User ke liye navbar
+
+              {/* User Role */}
+              {role === '2' && (
                 <>
                   <li className="nav-item">
-                    <Link href="/user/dashboard" passHref>
-                      <span className="nav-link">Dashboard</span>
-                    </Link>
+                    <Link href="/user/dashboard" className="nav-link">Dashboard</Link>
                   </li>
                   <li className="nav-item">
-                    <Link href="/user/profile" passHref>
-                      <span className="nav-link">Profile</span>
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link href="/user/orders" passHref>
-                      <span className="nav-link">Orders</span>
-                    </Link>
+                    <Link href="/user/profile" className="nav-link">Profile</Link>
                   </li>
                 </>
               )}
-              {role ? ( // Logout option, common for both admin and user
-                <li className="nav-item">
-                  <button className="btn btn-danger" onClick={handleLogout}>Logout</button>
-                </li>
-              ) : ( // Login button for unauthenticated users
-                <li className="nav-item">
-                  <button className="btn btn-primary" onClick={handleLogin}>Login</button>
-                </li>
+
+              {/* Menu Items for Logged-in Users */}
+              {!role && (
+                <>
+                  <li className="nav-item ms-3">
+                    <Link href="/" className="nav-link">Home</Link>
+                  </li>
+                  <li className="nav-item ms-3">
+                    <Link href="/courses" className="nav-link">Courses</Link>
+                  </li>
+                  <li className="nav-item ms-3">
+                    <Link href="/about" className="nav-link">About</Link>
+                  </li>
+                  <li className="nav-item ms-3">
+                    <Link href="/contact" className="nav-link">Contact</Link>
+                  </li>
+                </>
               )}
+
+              {/* Login / Logout */}
+              <li className="nav-item ms-3">
+                {role ? (
+                  <button className="btn btn-outline-danger" onClick={handleLogout}>
+                    Logout
+                  </button>
+                ) : (
+                  <button className="btn btn-primary" onClick={handleLogin}>
+                    Login
+                  </button>
+                )}
+              </li>
             </ul>
           </div>
         </div>
