@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Card, Button, Accordion, Form } from 'react-bootstrap';
+import Head from 'next/head';
 
 export default function CourseListing() {
   const [activeCategory, setActiveCategory] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [categorySearch, setCategorySearch] = useState('');
   const [coursesToShow, setCoursesToShow] = useState(3);
+
+  const appName = process.env.NEXT_PUBLIC_APP_NAME;
 
   const categories = ['Web Development', 'Data Science', 'Machine Learning', 'Cloud Computing', 'Cyber Security'];
 
@@ -37,6 +40,10 @@ export default function CourseListing() {
   };
 
   return (
+    <>
+     <Head>
+        <title>Courses |{appName}</title>
+    </Head>
     <Container className="my-4">
       {/* Category Filter Section */}
       <Row>
@@ -117,5 +124,6 @@ export default function CourseListing() {
         </Col>
       </Row>
     </Container>
+    </>
   );
 }

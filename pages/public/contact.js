@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from 'react-icons/fa';
+import Head from 'next/head';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -8,7 +9,7 @@ const Contact = () => {
     email: '',
     message: ''
   });
-
+  const appName = process.env.NEXT_PUBLIC_APP_NAME;
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -24,6 +25,10 @@ const Contact = () => {
   };
 
   return (
+    <>
+     <Head>
+        <title>Contact us |{appName}</title>
+    </Head>
     <Container className="py-5">
       <Row className="text-center mb-5">
         <Col md={12}>
@@ -96,6 +101,7 @@ const Contact = () => {
         </Col>
       </Row>
     </Container>
+    </>
   );
 };
 

@@ -1,9 +1,16 @@
 import React from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { FaBook, FaChalkboardTeacher, FaHandshake } from 'react-icons/fa';
+import Head from 'next/head';
 
 const About = () => {
+  const appName = process.env.NEXT_PUBLIC_APP_NAME;
+
   return (
+    <> 
+    <Head>
+        <title>About us |{appName}</title>
+    </Head>
     <Container className="py-5">
       <Row className="text-center">
         <Col md={12}>
@@ -51,7 +58,7 @@ const About = () => {
           </Button>
         </Col>
       </Row>
-    </Container>
+    </Container></>
   );
 };
 
