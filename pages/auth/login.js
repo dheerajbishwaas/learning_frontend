@@ -93,7 +93,7 @@ export default function LoginPage() {
   return (
     <>
     <Head>
-      <title>Login |{appName}</title>
+      <title>Login | {appName}</title>
     </Head>
     
     <div className="d-flex justify-content-center align-items-center vh-100 bg-white">

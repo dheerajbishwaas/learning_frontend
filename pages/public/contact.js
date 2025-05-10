@@ -27,7 +27,7 @@ const Contact = () => {
   return (
     <>
      <Head>
-        <title>Contact us |{appName}</title>
+        <title>Contact us | {appName}</title>
     </Head>
     <Container className="py-5">
       <Row className="text-center mb-5">

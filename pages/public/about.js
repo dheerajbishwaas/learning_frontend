@@ -9,7 +9,7 @@ const About = () => {
   return (
     <> 
     <Head>
-        <title>About us |{appName}</title>
+        <title>About us | {appName}</title>
     </Head>
     <Container className="py-5">
       <Row className="text-center">

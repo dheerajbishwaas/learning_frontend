@@ -42,7 +42,7 @@ export default function CourseListing() {
   return (
     <>
      <Head>
-        <title>Courses |{appName}</title>
+        <title>Courses | {appName}</title>
     </Head>
     <Container className="my-4">
       {/* Category Filter Section */}
