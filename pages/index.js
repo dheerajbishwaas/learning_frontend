@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>{appName}</title>
+        <title>Welcome to {appName}</title>
       </Head>
       <Container className="py-5">
         <Row className="align-items-center">
