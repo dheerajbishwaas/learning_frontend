@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from 'react-icons/fa';
 import Head from 'next/head';
+import axios from 'axios'; // 1. Add this at the top
+import { toast, ToastContainer } from 'react-toastify';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -9,6 +11,7 @@ const Contact = () => {
     email: '',
     message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false); // Add this line
   const appName = process.env.NEXT_PUBLIC_APP_NAME;
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,10 +21,30 @@ const Contact = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     // Handle form submission here
-    console.log('Form submitted:', formData);
+    try {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}users/contact`, formData);
+      
+      if (res.data?.success) {
+        toast.success('Your message has been sent successfully!', {
+          onClose: () => {
+            setFormData({ name: '', email: '', message: '' }); // Reset form
+          }
+        });
+
+      } else {
+         toast.error('Failed to send message. Please try again.');
+      }
+    } catch (err) {
+      console.error('Error sending message:', err);
+      toast.error('Failed to send message. Please try again.');
+    }
+    finally {
+      setIsSubmitting(false); 
+    }
   };
 
   return (
@@ -29,6 +52,7 @@ const Contact = () => {
      <Head>
         <title>Contact us | {appName}</title>
     </Head>
+    <ToastContainer/>
     <Container className="py-5">
       <Row className="text-center mb-5">
         <Col md={12}>
@@ -42,15 +66,15 @@ const Contact = () => {
           <div className="contact-info mb-4">
             <div className="d-flex align-items-center mb-3">
               <FaEnvelope size={30} className="me-3" />
-              <p className="m-0">support@example.com</p>
+              <p className="m-0">timelessspecials@gmail.com</p>
             </div>
             <div className="d-flex align-items-center mb-3">
               <FaPhoneAlt size={30} className="me-3" />
-              <p className="m-0">+123 456 7890</p>
+              <p className="m-0">+700 937 0137</p>
             </div>
             <div className="d-flex align-items-center">
               <FaMapMarkerAlt size={30} className="me-3" />
-              <p className="m-0">123 Main Street, City, Country</p>
+              <p className="m-0"># 701/2 Street 0 Aman nagar, Ludhiana Punjab, India</p>
             </div>
           </div>
         </Col>
@@ -94,8 +118,8 @@ const Contact = () => {
               />
             </Form.Group>
 
-            <Button variant="primary" type="submit" className="w-100 mt-3">
-              Send Message
+            <Button variant="primary" type="submit"  disabled={isSubmitting} className="w-100 mt-3">
+               {isSubmitting ? 'Sending...' : 'Send Message'}
             </Button>
           </Form>
         </Col>
