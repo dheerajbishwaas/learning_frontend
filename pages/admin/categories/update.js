@@ -108,14 +108,6 @@ const UpdateCategory = () => {
           </div>
 
           <div className="mb-3">
-            <label className="form-label">Status</label>
-            <select name="status" value={formData.status} onChange={handleChange} className="form-select">
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
-
-          <div className="mb-3">
             <label className="form-label">Icon (Image)</label>
             <input type="file" accept="image/*" onChange={handleImageChange} className="form-control" />
             {preview && (
@@ -140,6 +132,14 @@ const UpdateCategory = () => {
                 >×</button>
               </div>
             )}
+          </div>
+
+           <div className="mb-3">
+            <label className="form-label">Status</label>
+            <select name="status" value={formData.status} onChange={handleChange} className="form-select">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
           </div>
 
           <div className="d-flex justify-content-end">
