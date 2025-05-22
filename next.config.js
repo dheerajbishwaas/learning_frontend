@@ -30,6 +30,10 @@ module.exports = {
         source: '/contact',  // User URL pattern
         destination: '/public/contact',   // Actual dynamic file path
       },
+       {
+        source: '/course/:id',  // User URL pattern
+        destination: '/public/course',   // Actual dynamic file path
+      },
     ];
   }
 }

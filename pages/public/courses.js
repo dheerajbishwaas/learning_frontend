@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Button, Accordion, Form } from 'react-bootstrap';
 import axios from 'axios';
+import Head from 'next/head';
 
 export default function CourseListing() {
   const [activeCategory, setActiveCategory] = useState('');
@@ -11,6 +12,7 @@ export default function CourseListing() {
   const [page, setPage] = useState(1);
   const [totalCourses, setTotalCourses] = useState(0);
   const [loadingCourses, setLoadingCourses] = useState(false);
+  const appName = process.env.NEXT_PUBLIC_APP_NAME;
 
   const apiUrlCategory = process.env.NEXT_PUBLIC_API_URL + 'course/categories/getAllCategorys';
   const apiUrlCourse = process.env.NEXT_PUBLIC_API_URL + 'course/all';
@@ -78,6 +80,11 @@ export default function CourseListing() {
   };
 
   return (
+    <>
+      <Head>
+        <title>Courses List | {appName}</title>
+      </Head>
+   
     <Container className="my-4">
       <Row>
         <Col md={3}>
@@ -141,7 +148,7 @@ export default function CourseListing() {
                           ? course.categories.map((c) => c.name).join(', ')
                           : 'No category'}
                       </Card.Text>
-                      <Button variant="primary" className="w-100" style={{ borderRadius: '8px' }}>
+                      <Button href={`/course/${course._id}`}  variant="primary" className="w-100" style={{ borderRadius: '8px' }}>
                         Learn More
                       </Button>
                     </Card.Body>
@@ -165,5 +172,6 @@ export default function CourseListing() {
         </Col>
       </Row>
     </Container>
+     </>
   );
 }
