@@ -34,7 +34,7 @@ const UpdateCourse = () => {
   // State for multi-chapter videos
   const [chapters, setChapters] = useState([
     {
-      id: 1,
+      _id: 1,
       title: '',
       youtubeLink: '',
       description: '',
@@ -124,7 +124,7 @@ const UpdateCourse = () => {
   const handleChapterChange = (id, field, value) => {
     setChapters(prev => 
       prev.map(chapter => 
-        chapter.id === id ? { ...chapter, [field]: value } : chapter
+        chapter._id === id ? { ...chapter, [field]: value } : chapter
       )
     );
   };
@@ -134,7 +134,7 @@ const UpdateCourse = () => {
     setChapters(prev => [
       ...prev,
       {
-        id: prev.length + 1,
+        _id: prev.length + 1,
         title: '',
         youtubeLink: '',
         description: '',
@@ -146,7 +146,7 @@ const UpdateCourse = () => {
   // Remove chapter
   const removeChapter = (id) => {
     if (chapters.length > 1) {
-      setChapters(prev => prev.filter(chapter => chapter.id !== id));
+      setChapters(prev => prev.filter(chapter => chapter._id !== id));
     }
   };
   
@@ -327,15 +327,15 @@ const UpdateCourse = () => {
                 </button>
               </div>
               <div className="card-body">
-                {chapters.map((chapter) => (
+                {chapters.map((chapter,index) => (
                   <div key={chapter.id} className="mb-4 p-3 border rounded">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <h5>Chapter {chapter.id}</h5>
+                      <h5>Chapter {index+1}</h5>
                       {chapters.length > 1 && (
                         <button 
                           type="button" 
                           className="btn btn-sm btn-danger"
-                          onClick={() => removeChapter(chapter.id)}
+                          onClick={() => removeChapter(chapter._id)}
                         >
                           Remove
                         </button>
@@ -391,6 +391,15 @@ const UpdateCourse = () => {
                     </div>
                   </div>
                 ))}
+              </div>
+              <div className="d-flex justify-content-center mt-3 mb-3">
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm px-4"
+                  onClick={addNewChapter}
+                >
+                  Add Chapter
+                </button>
               </div>
             </div>
           )}

@@ -357,6 +357,15 @@ const CreateCourse = () => {
                   </div>
                 ))}
               </div>
+                <div className="d-flex justify-content-center mt-3 mb-3">
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm px-4"
+                  onClick={addNewChapter}
+                >
+                  Add Chapter
+                </button>
+              </div>
             </div>
           )}
           
