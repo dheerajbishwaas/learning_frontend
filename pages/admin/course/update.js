@@ -8,45 +8,35 @@ import axios from 'axios';
 import dynamic from 'next/dynamic';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-// Dynamically import the editor to avoid SSR issues
+
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 import 'react-quill/dist/quill.snow.css';
 
 const UpdateCourse = () => {
   const router = useRouter();
-  const { id } = router.query; // id will be dynamic based on the URL
+  const { id } = router.query;
   const appName = process.env.NEXT_PUBLIC_APP_NAME;
   const [categoryOptions, setCategoryOptions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Main form state
   const [formData, setFormData] = useState({
     courseName: '',
-    courseType: 'single', // 'single' or 'multi'
+    courseType: 'single',
     description: '',
     youtubeLink: '',
     videoCredits: '',
-    status: 'draft', // 'draft', 'published', 'disabled'
+    status: 'draft',
     metaTitle: '',
     metaDescription: '',
     categories: [],
   });
 
-  // State for multi-chapter videos
-  const [chapters, setChapters] = useState([
-    {
-      _id: 1,
-      title: '',
-      youtubeLink: '',
-      description: '',
-      credits: ''
-    }
-  ]);
+  const [chapters, setChapters] = useState([]);
 
-  // Categories options
   useEffect(() => {
     axios.get(`${process.env.NEXT_PUBLIC_API_URL}course/categories/getAllCategory`)
       .then((res) => {
-        const formatted = res.data.data.map((cat, index) => ({
+        const formatted = res.data.data.map((cat) => ({
           value: cat._id,
           label: cat.name,
         }));
@@ -57,10 +47,10 @@ const UpdateCourse = () => {
       });
   }, []);
 
-
   useEffect(() => {
     if (id) {
       const token = localStorage.getItem('token');
+      setLoading(true);
 
       axios.get(`${process.env.NEXT_PUBLIC_API_URL}course/getCourseById/${id}`, {
         headers: {
@@ -82,16 +72,24 @@ const UpdateCourse = () => {
           });
 
           if (course.courseType === 'multi') {
-            setChapters(course.chapters || []);
+            setChapters(course.chapters || [{
+              title: '',
+              youtubeLink: '',
+              description: '',
+              credits: ''
+            }]);
+          } else {
+            setChapters([]);
           }
+          setLoading(false);
         })
         .catch((err) => {
           console.error("Failed to load course:", err);
+          setLoading(false);
         });
     }
   }, [id]);
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -100,7 +98,6 @@ const UpdateCourse = () => {
     }));
   };
 
-  // Handle category selection
   const handleCategoryChange = (selectedOptions) => {
     setFormData(prev => ({
       ...prev,
@@ -112,7 +109,6 @@ const UpdateCourse = () => {
     formData.categories.includes(option.value)
   );
 
-  // Handle editor content change
   const handleEditorChange = (content) => {
     setFormData(prev => ({
       ...prev,
@@ -120,21 +116,18 @@ const UpdateCourse = () => {
     }));
   };
 
-  // Handle chapter changes
-  const handleChapterChange = (id, field, value) => {
+  const handleChapterChange = (index, field, value) => {
     setChapters(prev =>
-      prev.map(chapter =>
-        chapter._id === id ? { ...chapter, [field]: value } : chapter
+      prev.map((chapter, i) =>
+        i === index ? { ...chapter, [field]: value } : chapter
       )
     );
   };
 
-  // Add new chapter
   const addNewChapter = () => {
     setChapters(prev => [
       ...prev,
       {
-        _id: prev.length > 0 ? Math.max(...prev.map(c => c._id)) + 1 : 1,
         title: '',
         youtubeLink: '',
         description: '',
@@ -143,28 +136,24 @@ const UpdateCourse = () => {
     ]);
   };
 
-  // Remove chapter
-  const removeChapter = (id) => {
+  const removeChapter = (index) => {
     if (chapters.length > 1) {
-      setChapters(prev => prev.filter(chapter => chapter._id !== id));
+      setChapters(prev => prev.filter((_, i) => i !== index));
     }
   };
 
-  // Form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Combine form data with chapters if multi-chapter course
-    const courseData = formData.courseType === 'multi'
-      ? { ...formData, chapters }
-      : formData;
+    const token = localStorage.getItem('token');
 
     try {
-      const token = localStorage.getItem('token');
-      const courseId = id; // Replace this with your dynamic ID if needed
+      const courseData = {
+        ...formData,
+        chapters: formData.courseType === 'multi' ? chapters : undefined
+      };
 
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}course/update/${courseId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}course/update/${id}`,
         courseData,
         {
           headers: {
@@ -176,16 +165,18 @@ const UpdateCourse = () => {
 
       toast.success('Course updated successfully', {
         onClose: () => {
-          router.push('/admin/course');  // Redirect after toast is dismissed
+          router.push('/admin/course');
         }
       });
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Something went wrong';
       toast.error(errorMessage);
     }
-
-
   };
+
+  if (loading) {
+    return <div className="container my-4">Loading...</div>;
+  }
 
   return (
     <>
@@ -234,7 +225,7 @@ const UpdateCourse = () => {
                       onChange={handleChange}
                     />
                     <label className="form-check-label" htmlFor="singleChapter">
-                      Single Chapter (Full Course)
+                      Single Chapter
                     </label>
                   </div>
                   <div className="form-check form-check-inline">
@@ -248,14 +239,14 @@ const UpdateCourse = () => {
                       onChange={handleChange}
                     />
                     <label className="form-check-label" htmlFor="multiChapter">
-                      Multi-Chapter Course
+                      Multi-Chapter
                     </label>
                   </div>
                 </div>
               </div>
 
               <div className="mb-3">
-                <label htmlFor="description" className="form-label">Course Description</label>
+                <label htmlFor="description" className="form-label">Description</label>
                 {typeof window !== 'undefined' && (
                   <ReactQuill
                     theme="snow"
@@ -277,7 +268,6 @@ const UpdateCourse = () => {
                   value={selectedCategories}
                   onChange={handleCategoryChange}
                   placeholder="Select categories..."
-                  closeMenuOnSelect={false}
                 />
               </div>
             </div>
@@ -291,7 +281,7 @@ const UpdateCourse = () => {
               </div>
               <div className="card-body">
                 <div className="mb-3">
-                  <label htmlFor="youtubeLink" className="form-label">YouTube Video Link</label>
+                  <label htmlFor="youtubeLink" className="form-label">YouTube Link</label>
                   <input
                     type="url"
                     className="form-control"
@@ -305,7 +295,7 @@ const UpdateCourse = () => {
                 </div>
 
                 <div className="mb-3">
-                  <label htmlFor="videoCredits" className="form-label">Video Credits</label>
+                  <label htmlFor="videoCredits" className="form-label">Credits</label>
                   <textarea
                     className="form-control"
                     id="videoCredits"
@@ -313,8 +303,8 @@ const UpdateCourse = () => {
                     rows="3"
                     value={formData.videoCredits}
                     onChange={handleChange}
-                    placeholder="Credit information about the video creator"
-                  ></textarea>
+                    placeholder="Give credit to the video creator"
+                  />
                 </div>
               </div>
             </div>
@@ -328,14 +318,14 @@ const UpdateCourse = () => {
               </div>
               <div className="card-body">
                 {chapters.map((chapter, index) => (
-                  <div key={chapter._id} className="mb-4 p-3 border rounded">
+                  <div key={index} className="mb-4 p-3 border rounded">
                     <div className="d-flex justify-content-between align-items-center mb-2">
                       <h5>Chapter {index + 1}</h5>
                       {chapters.length > 1 && (
                         <button
                           type="button"
                           className="btn btn-sm btn-danger"
-                          onClick={() => removeChapter(chapter._id)}
+                          onClick={() => removeChapter(index)}
                         >
                           Remove
                         </button>
@@ -343,56 +333,52 @@ const UpdateCourse = () => {
                     </div>
 
                     <div className="mb-3">
-                      <label htmlFor={`chapterTitle-${chapter._id}`} className="form-label">Chapter Title</label>
+                      <label className="form-label">Title</label>
                       <input
                         type="text"
                         className="form-control"
-                        id={`chapterTitle-${chapter._id}`}
                         value={chapter.title}
-                        onChange={(e) => handleChapterChange(chapter._id, 'title', e.target.value)}
+                        onChange={(e) => handleChapterChange(index, 'title', e.target.value)}
                         required
                       />
                     </div>
 
                     <div className="mb-3">
-                      <label htmlFor={`chapterYoutubeLink-${chapter._id}`} className="form-label">YouTube Video Link</label>
+                      <label className="form-label">YouTube Link</label>
                       <input
                         type="url"
                         className="form-control"
-                        id={`chapterYoutubeLink-${chapter._id}`}
                         value={chapter.youtubeLink}
-                        onChange={(e) => handleChapterChange(chapter._id, 'youtubeLink', e.target.value)}
+                        onChange={(e) => handleChapterChange(index, 'youtubeLink', e.target.value)}
                         required
                         placeholder="https://www.youtube.com/watch?v=..."
                       />
                     </div>
 
                     <div className="mb-3">
-                      <label htmlFor={`chapterDescription-${chapter._id}`} className="form-label">Description</label>
+                      <label className="form-label">Description</label>
                       <textarea
                         className="form-control"
-                        id={`chapterDescription-${chapter._id}`}
                         rows="3"
                         value={chapter.description}
-                        onChange={(e) => handleChapterChange(chapter._id, 'description', e.target.value)}
-                      ></textarea>
+                        onChange={(e) => handleChapterChange(index, 'description', e.target.value)}
+                      />
                     </div>
 
                     <div className="mb-3">
-                      <label htmlFor={`chapterCredits-${chapter._id}`} className="form-label">Video Credits</label>
+                      <label className="form-label">Credits</label>
                       <textarea
                         className="form-control"
-                        id={`chapterCredits-${chapter._id}`}
                         rows="2"
                         value={chapter.credits}
-                        onChange={(e) => handleChapterChange(chapter._id, 'credits', e.target.value)}
-                        placeholder="Credit information about the video creator"
-                      ></textarea>
+                        onChange={(e) => handleChapterChange(index, 'credits', e.target.value)}
+                        placeholder="Give credit to the video creator"
+                      />
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="d-flex justify-content-center mt-3 mb-3">
+               <div className="d-flex justify-content-center mt-3 mb-3">
                 <button
                   type="button"
                   className="btn btn-primary btn-sm px-4"
@@ -404,7 +390,7 @@ const UpdateCourse = () => {
             </div>
           )}
 
-          {/* SEO Information */}
+          {/* SEO and Status Sections */}
           <div className="card mb-4">
             <div className="card-header">
               <h3>SEO Information</h3>
@@ -421,7 +407,7 @@ const UpdateCourse = () => {
                   onChange={handleChange}
                   maxLength="60"
                 />
-                <small className="text-muted">Recommended length: 50-60 characters</small>
+                <small className="text-muted">Recommended: 50-60 characters</small>
               </div>
 
               <div className="mb-3">
@@ -434,34 +420,30 @@ const UpdateCourse = () => {
                   value={formData.metaDescription}
                   onChange={handleChange}
                   maxLength="160"
-                ></textarea>
-                <small className="text-muted">Recommended length: 150-160 characters</small>
+                />
+                <small className="text-muted">Recommended: 150-160 characters</small>
               </div>
             </div>
           </div>
 
-          {/* Course Status */}
           <div className="card mb-4">
             <div className="card-header">
-              <h3>Course Status</h3>
+              <h3>Status</h3>
             </div>
             <div className="card-body">
-              <div className="mb-3">
-                <select
-                  className="form-select"
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                >
-                  <option value="draft">Draft</option>
-                  <option value="published">Published</option>
-                  <option value="disabled">Disabled</option>
-                </select>
-              </div>
+              <select
+                className="form-select"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+              >
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+                <option value="disabled">Disabled</option>
+              </select>
             </div>
           </div>
 
-          {/* Form Submission */}
           <div className="d-flex justify-content-end">
             <button type="submit" className="btn btn-primary px-4">
               Update Course
