@@ -7,17 +7,27 @@ import { toast } from 'react-toastify';
 const CourseTable = () => {
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);  // Add perPage state
   const [totalRows, setTotalRows] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
   const router = useRouter();
 
-  const fetchData = async (pageNumber = 1) => {
+  const fetchData = async (pageNumber = 1, searchTerm = '', perPageCount = perPage) => {
     setLoading(true);
     const token = localStorage.getItem('token');
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}course/list?page=${pageNumber}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}course/list`,
+        {
+          params: {
+            page: pageNumber,
+            search: searchTerm,
+            limit: perPageCount   // pass limit param for perPage
+          },
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setData(response.data.data);
       setTotalRows(response.data.total);
       setPage(pageNumber);
@@ -29,41 +39,31 @@ const CourseTable = () => {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(page, search, perPage);
+  }, [page, search, perPage]);
 
   const columns = [
     { name: 'Name', selector: row => row.courseName },
-    { name: 'Course Type', selector: row => row.courseType.charAt(0).toUpperCase() + row.courseType.slice(1)},
-    { name: 'Created-At', selector: row => row.createdAt },
+    { name: 'Course Type', selector: row => row.courseType.charAt(0).toUpperCase() + row.courseType.slice(1) },
+    { name: 'Created-At', selector: row => new Date(row.createdAt).toLocaleDateString() },
     {
-        name: 'Status',
-        cell: row => {
-          let badgeClass = '';
-          
-          switch(row.status) {
-            case 'draft':
-              badgeClass = 'bg-warning';  // Yellow for draft
-              break;
-            case 'published':
-              badgeClass = 'bg-success';  // Green for published
-              break;
-            case 'disabled':
-              badgeClass = 'bg-danger';   // Red for disabled
-              break;
-            default:
-              badgeClass = 'bg-secondary'; // Default grey
-              break;
-          }
-      
-          return (
-            <span className={`badge ${badgeClass} rounded-pill px-3 py-2`}>
-              {row.status.charAt(0).toUpperCase() + row.status.slice(1)}
-            </span>
-          );
-        },
-        sortable: true,
+      name: 'Status',
+      cell: row => {
+        let badgeClass = '';
+        switch(row.status) {
+          case 'draft': badgeClass = 'bg-warning'; break;
+          case 'published': badgeClass = 'bg-success'; break;
+          case 'disabled': badgeClass = 'bg-danger'; break;
+          default: badgeClass = 'bg-secondary';
+        }
+        return (
+          <span className={`badge ${badgeClass} rounded-pill px-3 py-2`}>
+            {row.status.charAt(0).toUpperCase() + row.status.slice(1)}
+          </span>
+        );
       },
+      sortable: true,
+    },
     {
       name: 'Actions',
       cell: row => (
@@ -83,7 +83,7 @@ const CourseTable = () => {
       });
       toast.success('Deleted successfully',{
         onClose: () => {
-          fetchData(page);
+          fetchData(page, search, perPage);
         }
       });
     } catch {
@@ -91,15 +91,40 @@ const CourseTable = () => {
     }
   };
 
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    setPage(1);
+  };
+
   return (
-    <CommonTable
-      title=""
-      columns={columns}
-      data={data}
-      loading={loading}
-      totalRows={totalRows}
-      onPageChange={fetchData}
-    />
+    <div>
+      <div className="mb-3 d-flex">
+        <input
+          type="text"
+          placeholder="Search courses..."
+          value={search}
+          onChange={handleSearchChange}
+          className="form-control me-2"
+        />
+        <button className="btn btn-primary" onClick={() => fetchData(1, search, perPage)}>Search</button>
+      </div>
+
+      <CommonTable
+        title=""
+        columns={columns}
+        data={data}
+        loading={loading}
+        totalRows={totalRows}
+        perPage={perPage}                 
+        onPageChange={(pageNumber) => {
+          setPage(pageNumber);
+        }}
+        onRowsPerPageChange={(newPerPage) => {
+          setPerPage(newPerPage);       
+          setPage(1);
+        }}
+      />
+    </div>
   );
 };
 
