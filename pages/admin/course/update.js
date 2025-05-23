@@ -30,7 +30,7 @@ const UpdateCourse = () => {
     metaDescription: '',
     categories: [],
   });
-  
+
   // State for multi-chapter videos
   const [chapters, setChapters] = useState([
     {
@@ -41,7 +41,7 @@ const UpdateCourse = () => {
       credits: ''
     }
   ]);
-  
+
   // Categories options
   useEffect(() => {
     axios.get(`${process.env.NEXT_PUBLIC_API_URL}course/categories/getAllCategory`)
@@ -56,41 +56,41 @@ const UpdateCourse = () => {
         console.error('Failed to fetch categories:', err);
       });
   }, []);
-  
+
 
   useEffect(() => {
     if (id) {
       const token = localStorage.getItem('token');
-  
+
       axios.get(`${process.env.NEXT_PUBLIC_API_URL}course/getCourseById/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      .then((res) => {
-        const course = res.data.data;
-        setFormData({
-          courseName: course.courseName,
-          courseType: course.courseType,
-          description: course.description,
-          youtubeLink: course.youtubeLink,
-          videoCredits: course.videoCredits,
-          status: course.status,
-          metaTitle: course.metaTitle,
-          metaDescription: course.metaDescription,
-          categories: course.categories || [],
+        .then((res) => {
+          const course = res.data.data;
+          setFormData({
+            courseName: course.courseName,
+            courseType: course.courseType,
+            description: course.description,
+            youtubeLink: course.youtubeLink,
+            videoCredits: course.videoCredits,
+            status: course.status,
+            metaTitle: course.metaTitle,
+            metaDescription: course.metaDescription,
+            categories: course.categories || [],
+          });
+
+          if (course.courseType === 'multi') {
+            setChapters(course.chapters || []);
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to load course:", err);
         });
-  
-        if (course.courseType === 'multi') {
-          setChapters(course.chapters || []);
-        }
-      })
-      .catch((err) => {
-        console.error("Failed to load course:", err);
-      });
     }
   }, [id]);
-  
+
   // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -99,16 +99,16 @@ const UpdateCourse = () => {
       [name]: value
     }));
   };
-  
+
   // Handle category selection
   const handleCategoryChange = (selectedOptions) => {
     setFormData(prev => ({
       ...prev,
       categories: selectedOptions ? selectedOptions.map(option => option.value) : []
     }));
-  }; 
-  
-  const selectedCategories = categoryOptions.filter(option => 
+  };
+
+  const selectedCategories = categoryOptions.filter(option =>
     formData.categories.includes(option.value)
   );
 
@@ -119,22 +119,22 @@ const UpdateCourse = () => {
       description: content
     }));
   };
-  
+
   // Handle chapter changes
   const handleChapterChange = (id, field, value) => {
-    setChapters(prev => 
-      prev.map(chapter => 
+    setChapters(prev =>
+      prev.map(chapter =>
         chapter._id === id ? { ...chapter, [field]: value } : chapter
       )
     );
   };
-  
+
   // Add new chapter
   const addNewChapter = () => {
     setChapters(prev => [
       ...prev,
       {
-        _id: prev.length + 1,
+        _id: prev.length > 0 ? Math.max(...prev.map(c => c._id)) + 1 : 1,
         title: '',
         youtubeLink: '',
         description: '',
@@ -142,49 +142,49 @@ const UpdateCourse = () => {
       }
     ]);
   };
-  
+
   // Remove chapter
   const removeChapter = (id) => {
     if (chapters.length > 1) {
       setChapters(prev => prev.filter(chapter => chapter._id !== id));
     }
   };
-  
+
   // Form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Combine form data with chapters if multi-chapter course
-    const courseData = formData.courseType === 'multi' 
-      ? { ...formData, chapters } 
+    const courseData = formData.courseType === 'multi'
+      ? { ...formData, chapters }
       : formData;
-    
-      try {
-        const token = localStorage.getItem('token');
-        const courseId = id; // Replace this with your dynamic ID if needed
-      
-        const response = await axios.put(
-          `${process.env.NEXT_PUBLIC_API_URL}course/update/${courseId}`,
-          courseData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-      
-        toast.success('Course updated successfully', {
-          onClose: () => {
-            router.push('/admin/course');  // Redirect after toast is dismissed
-          }
-        });
-      } catch (error) {
-        const errorMessage = error.response?.data?.message || 'Something went wrong'; 
-        toast.error(errorMessage);
-      }
-      
-      
+
+    try {
+      const token = localStorage.getItem('token');
+      const courseId = id; // Replace this with your dynamic ID if needed
+
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}course/update/${courseId}`,
+        courseData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      toast.success('Course updated successfully', {
+        onClose: () => {
+          router.push('/admin/course');  // Redirect after toast is dismissed
+        }
+      });
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Something went wrong';
+      toast.error(errorMessage);
+    }
+
+
   };
 
   return (
@@ -199,7 +199,7 @@ const UpdateCourse = () => {
             Back to Courses
           </Link>
         </div>
-        
+
         <form onSubmit={handleSubmit}>
           {/* Basic Course Information */}
           <div className="card mb-4">
@@ -219,7 +219,7 @@ const UpdateCourse = () => {
                   required
                 />
               </div>
-              
+
               <div className="mb-3">
                 <label className="form-label">Course Type</label>
                 <div>
@@ -253,7 +253,7 @@ const UpdateCourse = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="mb-3">
                 <label htmlFor="description" className="form-label">Course Description</label>
                 {typeof window !== 'undefined' && (
@@ -265,7 +265,7 @@ const UpdateCourse = () => {
                   />
                 )}
               </div>
-              
+
               <div className="mb-3">
                 <label htmlFor="categories" className="form-label">Categories</label>
                 <Select
@@ -282,7 +282,7 @@ const UpdateCourse = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Video Information */}
           {formData.courseType === 'single' ? (
             <div className="card mb-4">
@@ -303,7 +303,7 @@ const UpdateCourse = () => {
                     placeholder="https://www.youtube.com/watch?v=..."
                   />
                 </div>
-                
+
                 <div className="mb-3">
                   <label htmlFor="videoCredits" className="form-label">Video Credits</label>
                   <textarea
@@ -327,13 +327,13 @@ const UpdateCourse = () => {
                 </button>
               </div>
               <div className="card-body">
-                {chapters.map((chapter,index) => (
-                  <div key={chapter.id} className="mb-4 p-3 border rounded">
+                {chapters.map((chapter, index) => (
+                  <div key={chapter._id} className="mb-4 p-3 border rounded">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <h5>Chapter {index+1}</h5>
+                      <h5>Chapter {index + 1}</h5>
                       {chapters.length > 1 && (
-                        <button 
-                          type="button" 
+                        <button
+                          type="button"
                           className="btn btn-sm btn-danger"
                           onClick={() => removeChapter(chapter._id)}
                         >
@@ -341,51 +341,51 @@ const UpdateCourse = () => {
                         </button>
                       )}
                     </div>
-                    
+
                     <div className="mb-3">
-                      <label htmlFor={`chapterTitle-${chapter.id}`} className="form-label">Chapter Title</label>
+                      <label htmlFor={`chapterTitle-${chapter._id}`} className="form-label">Chapter Title</label>
                       <input
                         type="text"
                         className="form-control"
-                        id={`chapterTitle-${chapter.id}`}
+                        id={`chapterTitle-${chapter._id}`}
                         value={chapter.title}
-                        onChange={(e) => handleChapterChange(chapter.id, 'title', e.target.value)}
+                        onChange={(e) => handleChapterChange(chapter._id, 'title', e.target.value)}
                         required
                       />
                     </div>
-                    
+
                     <div className="mb-3">
-                      <label htmlFor={`chapterYoutubeLink-${chapter.id}`} className="form-label">YouTube Video Link</label>
+                      <label htmlFor={`chapterYoutubeLink-${chapter._id}`} className="form-label">YouTube Video Link</label>
                       <input
                         type="url"
                         className="form-control"
-                        id={`chapterYoutubeLink-${chapter.id}`}
+                        id={`chapterYoutubeLink-${chapter._id}`}
                         value={chapter.youtubeLink}
-                        onChange={(e) => handleChapterChange(chapter.id, 'youtubeLink', e.target.value)}
+                        onChange={(e) => handleChapterChange(chapter._id, 'youtubeLink', e.target.value)}
                         required
                         placeholder="https://www.youtube.com/watch?v=..."
                       />
                     </div>
-                    
+
                     <div className="mb-3">
-                      <label htmlFor={`chapterDescription-${chapter.id}`} className="form-label">Description</label>
+                      <label htmlFor={`chapterDescription-${chapter._id}`} className="form-label">Description</label>
                       <textarea
                         className="form-control"
-                        id={`chapterDescription-${chapter.id}`}
+                        id={`chapterDescription-${chapter._id}`}
                         rows="3"
                         value={chapter.description}
-                        onChange={(e) => handleChapterChange(chapter.id, 'description', e.target.value)}
+                        onChange={(e) => handleChapterChange(chapter._id, 'description', e.target.value)}
                       ></textarea>
                     </div>
-                    
+
                     <div className="mb-3">
-                      <label htmlFor={`chapterCredits-${chapter.id}`} className="form-label">Video Credits</label>
+                      <label htmlFor={`chapterCredits-${chapter._id}`} className="form-label">Video Credits</label>
                       <textarea
                         className="form-control"
-                        id={`chapterCredits-${chapter.id}`}
+                        id={`chapterCredits-${chapter._id}`}
                         rows="2"
                         value={chapter.credits}
-                        onChange={(e) => handleChapterChange(chapter.id, 'credits', e.target.value)}
+                        onChange={(e) => handleChapterChange(chapter._id, 'credits', e.target.value)}
                         placeholder="Credit information about the video creator"
                       ></textarea>
                     </div>
@@ -403,7 +403,7 @@ const UpdateCourse = () => {
               </div>
             </div>
           )}
-          
+
           {/* SEO Information */}
           <div className="card mb-4">
             <div className="card-header">
@@ -423,7 +423,7 @@ const UpdateCourse = () => {
                 />
                 <small className="text-muted">Recommended length: 50-60 characters</small>
               </div>
-              
+
               <div className="mb-3">
                 <label htmlFor="metaDescription" className="form-label">Meta Description</label>
                 <textarea
@@ -439,7 +439,7 @@ const UpdateCourse = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Course Status */}
           <div className="card mb-4">
             <div className="card-header">
@@ -460,7 +460,7 @@ const UpdateCourse = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Form Submission */}
           <div className="d-flex justify-content-end">
             <button type="submit" className="btn btn-primary px-4">
@@ -468,7 +468,7 @@ const UpdateCourse = () => {
             </button>
           </div>
         </form>
-        <ToastContainer/>
+        <ToastContainer />
       </div>
     </>
   );
