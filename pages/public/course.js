@@ -12,6 +12,7 @@ export default function CourseDetailWithChapters() {
   const [chapters, setChapters] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedChapter, setSelectedChapter] = useState(null);
+  const [visibleChaptersCount, setVisibleChaptersCount] = useState(6);
   const appName = process.env.NEXT_PUBLIC_APP_NAME;
   const apiUrl = process.env.NEXT_PUBLIC_API_URL + `course/getbyid/${id}`;
 
@@ -25,7 +26,6 @@ export default function CourseDetailWithChapters() {
       const courseData = res.data.data;
       setCourse(courseData);
       setChapters(courseData?.chapters || []);
-      // Automatically select the first chapter if courseType is multi and chapters exist
       if (courseData.courseType === 'multi' && courseData.chapters?.length > 0) {
         setSelectedChapter(courseData.chapters[0]);
       }
@@ -37,6 +37,8 @@ export default function CourseDetailWithChapters() {
   const filteredChapters = chapters.filter((chapter) =>
     chapter.title?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const visibleChapters = filteredChapters.slice(0, visibleChaptersCount);
 
   return (
     <>
@@ -61,7 +63,6 @@ export default function CourseDetailWithChapters() {
 
         <Row>
           {course?.courseType === 'single' ? (
-            // === SINGLE COURSE UI ===
             <Col>
               <Card className="shadow-sm" style={{ borderRadius: '10px' }}>
                 <Card.Body>
@@ -82,16 +83,13 @@ export default function CourseDetailWithChapters() {
                       <strong>Credits:</strong> {course.videoCredits}
                     </p>
                   )}
-
                   <strong className="text-muted">Description : </strong>
                   <div dangerouslySetInnerHTML={{ __html: course.description || 'No description available.' }} />
                 </Card.Body>
               </Card>
             </Col>
           ) : (
-            // === MULTI COURSE UI ===
             <>
-              {/* Left Sidebar: Chapters */}
               <Col md={3}>
                 <h4 className="mb-4 text-primary">Browse Chapters</h4>
                 <Accordion defaultActiveKey="0" className="shadow-sm" style={{ borderRadius: '8px' }}>
@@ -106,21 +104,32 @@ export default function CourseDetailWithChapters() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         style={{ borderRadius: '8px' }}
                       />
-                      {filteredChapters.length > 0 ? (
-                        filteredChapters.map((chapter) => (
+                      {visibleChapters.length > 0 ? (
+                        <>
+                          {visibleChapters.map((chapter) => (
+                            <Button
+                              key={chapter._id}
+                              variant={selectedChapter?._id === chapter._id ? 'primary' : 'outline-secondary'}
+                              className="w-100 mb-2"
+                              onClick={() => setSelectedChapter(chapter)}
+                              style={{
+                                borderRadius: '8px',
+                                fontWeight: selectedChapter?._id === chapter._id ? 'bold' : 'normal',
+                              }}
+                            >
+                              {chapter.title}
+                            </Button>
+                          ))}
+                          {visibleChapters.length < filteredChapters.length && (
                           <Button
-                            key={chapter._id}
-                            variant={selectedChapter?._id === chapter._id ? 'primary' : 'outline-secondary'}
-                            className="w-100 mb-2"
-                            onClick={() => setSelectedChapter(chapter)}
-                            style={{
-                              borderRadius: '8px',
-                              fontWeight: selectedChapter?._id === chapter._id ? 'bold' : 'normal',
-                            }}
-                          >
-                            {chapter.title}
-                          </Button>
-                        ))
+                              variant="outline-primary"
+                              className="w-100 mt-3 py-2 fw-semibold rounded-pill shadow-sm"
+                              onClick={() => setVisibleChaptersCount(prev => prev + 5)}
+                            >
+                              + Load More Chapters
+                            </Button>
+                          )}
+                        </>
                       ) : (
                         <p className="text-muted">No chapters found.</p>
                       )}
@@ -129,7 +138,6 @@ export default function CourseDetailWithChapters() {
                 </Accordion>
               </Col>
 
-              {/* Right Side: Selected Chapter Video + Description */}
               <Col md={9}>
                 {selectedChapter ? (
                   <Card className="shadow-sm" style={{ borderRadius: '10px' }}>
@@ -168,7 +176,6 @@ export default function CourseDetailWithChapters() {
   );
 }
 
-// Extract YouTube video ID
 function extractYouTubeId(url) {
   const regExp = /^.*(?:youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#\&\?]*).*/;
   const match = url.match(regExp);
