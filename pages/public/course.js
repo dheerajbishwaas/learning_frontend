@@ -106,18 +106,18 @@ export default function CourseDetailWithChapters() {
                       />
                       {visibleChapters.length > 0 ? (
                         <>
-                          {visibleChapters.map((chapter) => (
+                          {visibleChapters.map((chapter, index) => (
                             <Button
                               key={chapter._id}
                               variant={selectedChapter?._id === chapter._id ? 'primary' : 'outline-secondary'}
-                              className="w-100 mb-2"
+                              className="w-100 mb-2 text-start"
                               onClick={() => setSelectedChapter(chapter)}
                               style={{
                                 borderRadius: '8px',
                                 fontWeight: selectedChapter?._id === chapter._id ? 'bold' : 'normal',
                               }}
                             >
-                              {chapter.title}
+                              Chapter {index + 1}: {chapter.title}
                             </Button>
                           ))}
                           {visibleChapters.length < filteredChapters.length && (
